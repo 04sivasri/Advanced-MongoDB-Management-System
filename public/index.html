@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDS ISB - Advanced MongoDB Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>CDS ISB</h1>
+                </div>
+                <p class="brand-subtitle">Advanced MongoDB Management System</p>
+                <p class="brand-description">Real MongoDB Atlas Database with Advanced Features</p>
+            </div>
+            
+            <div class="login-card">
+                <h2><i class="fas fa-database"></i> Connect to Your MongoDB Atlas</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" required placeholder="Enter your username">
+                        <small>Use the ADMIN_USERNAME from your environment variables</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" required placeholder="Enter your password">
+                        <small>Use the ADMIN_PASSWORD from your environment variables</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Connect to MongoDB Atlas
+                    </button>
+                </form>
+                <div id="loginStatus" class="status-message"></div>
+                
+                <div class="connection-help">
+                    <h4>🔧 Connection Help:</h4>
+                    <ul>
+                        <li>Make sure your MongoDB Atlas connection string is set in MONGODB_URI</li>
+                        <li>Verify your IP address is whitelisted in MongoDB Atlas</li>
+                        <li>Check that your database user has proper permissions</li>
+                        <li>Use the credentials you set in your environment variables</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <footer class="login-footer">
+                <p>© 2024 CDS ISB - Advanced MongoDB Atlas Integration</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Database Selection Screen -->
+    <div id="databaseSelectionScreen" class="screen">
+        <div class="login-container">
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>CDS ISB</h1>
+                </div>
+                <p class="brand-subtitle">Select Database</p>
+                <p class="brand-description">Choose which database to connect to from your MongoDB Atlas account</p>
+            </div>
+            
+            <div class="database-selection-card">
+                <h2><i class="fas fa-database"></i> Available Databases</h2>
+                <div id="databaseStatus" class="status-message"></div>
+                
+                <div class="database-grid" id="databaseList">
+                    <!-- Databases will be populated by JavaScript -->
+                </div>
+                
+                <div class="database-actions">
+                    <button class="btn btn-secondary" onclick="app.logout()">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.loadAvailableDatabases()">
+                        <i class="fas fa-sync-alt"></i> Refresh Databases
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="screen">
+        <header class="main-header">
+            <div class="header-left">
+                <h1><i class="fas fa-graduation-cap"></i> CDS ISB Advanced MongoDB Dashboard</h1>
+                <p>Connected to your real MongoDB Atlas database with advanced features</p>
+            </div>
+            <div class="header-right">
+                <div class="system-status">
+                    <div class="status-card">
+                        <h3><i class="fas fa-database"></i> MongoDB Status</h3>
+                        <div class="status-item">
+                            <span class="status-indicator connected"></span>
+                            <span>Atlas Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Database: <strong id="currentDatabase">Loading...</strong></span>
+                        </div>
+                        <div class="status-item">
+                            <span>User: <strong id="currentUser">Loading...</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Real-time Statistics -->
+            <section class="stats-section">
+                <h2><i class="fas fa-chart-bar"></i> Live MongoDB Statistics</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Collection Modules -->
+            <section class="modules-section">
+                <h2><i class="fas fa-database"></i> MongoDB Collections</h2>
+                <div class="modules-grid" id="modulesGrid">
+                    <!-- Modules will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Advanced MongoDB Features -->
+            <section class="controls-section">
+                <div class="controls-left">
+                    <button class="btn btn-primary" onclick="refreshAllData()">
+                        <i class="fas fa-sync-alt"></i> Refresh from MongoDB
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.showAdvancedAnalytics()">
+                        <i class="fas fa-chart-line"></i> Advanced Analytics
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.showAggregationPipeline()">
+                        <i class="fas fa-code-branch"></i> Aggregation Pipeline
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.showLockedRecords()">
+                        <i class="fas fa-lock"></i> Locked Records
+                    </button>
+                </div>
+                <div class="controls-right">
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Collection Manager Screen -->
+    <div id="collectionScreen" class="screen">
+        <header class="collection-header">
+            <div class="header-left">
+                <h1 id="collectionTitle"><i class="fas fa-database"></i> Collection Management</h1>
+                <p id="collectionSubtitle">Advanced MongoDB collection management</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-secondary" onclick="showDashboard()">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </button>
+            </div>
+        </header>
+
+        <div class="collection-toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" onclick="addRecord()">
+                    <i class="fas fa-plus"></i> Add to MongoDB
+                </button>
+                <button class="btn btn-secondary" onclick="app.createView()">
+                    <i class="fas fa-eye"></i> Create View
+                </button>
+                <button class="btn btn-secondary" onclick="app.showViews()">
+                    <i class="fas fa-list"></i> Show Views
+                </button>
+                <button class="btn btn-secondary" onclick="app.showIndexes()">
+                    <i class="fas fa-search"></i> Indexes
+                </button>
+                <button class="btn btn-secondary" onclick="app.bulkOperations()">
+                    <i class="fas fa-layer-group"></i> Bulk Ops
+                </button>
+                <button class="btn btn-secondary" onclick="app.exportCollection()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search MongoDB records...">
+                    <button onclick="searchRecords()"><i class="fas fa-search"></i></button>
+                </div>
+                <button class="btn btn-secondary" onclick="refreshCollection()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="collection-content">
+            <div class="table-container">
+                <table id="dataTable" class="data-table">
+                    <thead id="tableHeader">
+                        <!-- Headers will be populated by JavaScript -->
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-status">
+                <span id="recordCount">0 records</span>
+                <span id="lockedCount"></span>
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Analytics Screen -->
+    <div id="analyticsScreen" class="screen">
+        <header class="analytics-header">
+            <div class="header-left">
+                <h1><i class="fas fa-chart-line"></i> Advanced MongoDB Analytics</h1>
+                <p>Comprehensive analytics and insights from your MongoDB data</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-secondary" onclick="showDashboard()">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </button>
+            </div>
+        </header>
+
+        <div class="analytics-content">
+            <div class="analytics-tabs">
+                <button class="tab-btn active" onclick="app.showAnalyticsTab('overview')">System Overview</button>
+                <button class="tab-btn" onclick="app.showAnalyticsTab('trends')">Trends Analysis</button>
+                <button class="tab-btn" onclick="app.showAnalyticsTab('performance')">Performance Metrics</button>
+            </div>
+
+            <div id="overviewTab" class="analytics-tab active">
+                <div class="overview-cards">
+                    <div class="analytics-card">
+                        <h3>System Statistics</h3>
+                        <div id="systemStats"></div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Collection Distribution</h3>
+                        <canvas id="collectionChart"></canvas>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivity"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="trendsTab" class="analytics-tab">
+                <div class="trends-content">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <div id="performanceTab" class="analytics-tab">
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <h3>Query Performance</h3>
+                        <div id="queryMetrics"></div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Index Usage</h3>
+                        <div id="indexMetrics"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aggregation Pipeline Builder -->
+    <div id="aggregationScreen" class="screen">
+        <header class="aggregation-header">
+            <div class="header-left">
+                <h1><i class="fas fa-code-branch"></i> MongoDB Aggregation Pipeline Builder</h1>
+                <p>Build and execute powerful MongoDB aggregation pipelines</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-secondary" onclick="showDashboard()">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </button>
+            </div>
+        </header>
+
+        <div class="pipeline-builder">
+            <div class="pipeline-sidebar">
+                <h3>Pipeline Stages</h3>
+                <div class="stage-buttons">
+                    <button class="stage-btn" onclick="app.addStage('match')">
+                        <i class="fas fa-filter"></i> $match
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('group')">
+                        <i class="fas fa-layer-group"></i> $group
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('sort')">
+                        <i class="fas fa-sort"></i> $sort
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('project')">
+                        <i class="fas fa-eye"></i> $project
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('lookup')">
+                        <i class="fas fa-link"></i> $lookup
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('unwind')">
+                        <i class="fas fa-expand"></i> $unwind
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('limit')">
+                        <i class="fas fa-cut"></i> $limit
+                    </button>
+                    <button class="stage-btn" onclick="app.addStage('skip')">
+                        <i class="fas fa-forward"></i> $skip
+                    </button>
+                </div>
+            </div>
+
+            <div class="pipeline-main">
+                <div class="pipeline-controls">
+                    <select id="pipelineCollection">
+                        <option value="">Select Collection</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="app.executePipeline()">
+                        <i class="fas fa-play"></i> Execute Pipeline
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.clearPipeline()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+
+                <div class="pipeline-stages" id="pipelineStages">
+                    <!-- Pipeline stages will be added here -->
+                </div>
+
+                <div class="pipeline-results">
+                    <div class="results-header">
+                        <h3>Pipeline Results</h3>
+                        <span id="resultCount">0 documents</span>
+                    </div>
+                    <div class="results-content" id="pipelineResults">
+                        <div class="no-results">No pipeline executed yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Record -->
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Record</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="recordForm">
+                    <div id="formFields">
+                        <!-- Form fields will be populated by JavaScript -->
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save to MongoDB
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
